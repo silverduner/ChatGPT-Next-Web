@@ -199,31 +199,6 @@ export function Settings(props: { closeSettings: () => void }) {
             </Popover>
           </SettingItem>
 
-          <SettingItem
-            title={Locale.Settings.Update.Version(currentId)}
-            subTitle={
-              checkingUpdate
-                ? Locale.Settings.Update.IsChecking
-                : hasNewVersion
-                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-                : Locale.Settings.Update.IsLatest
-            }
-          >
-            {checkingUpdate ? (
-              <div />
-            ) : hasNewVersion ? (
-              <Link href={UPDATE_URL} target="_blank" className="link">
-                {Locale.Settings.Update.GoToUpdate}
-              </Link>
-            ) : (
-              <IconButton
-                icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Update.CheckUpdate}
-                onClick={() => checkUpdate(true)}
-              />
-            )}
-          </SettingItem>
-
           <SettingItem title={Locale.Settings.SendKey}>
             <select
               value={config.submitKey}
@@ -283,7 +258,7 @@ export function Settings(props: { closeSettings: () => void }) {
           >
             <input
               type="range"
-              title={`${config.fontSize ?? 14}px`}
+              title={`${config.fontSize ?? 18}px`}
               value={config.fontSize}
               min="12"
               max="18"
@@ -371,21 +346,6 @@ export function Settings(props: { closeSettings: () => void }) {
           ) : (
             <></>
           )}
-
-          <SettingItem
-            title={Locale.Settings.Token.Title}
-            subTitle={Locale.Settings.Token.SubTitle}
-          >
-            <PasswordInput
-              value={accessStore.token}
-              type="text"
-              placeholder={Locale.Settings.Token.Placeholder}
-              onChange={(e) => {
-                accessStore.updateToken(e.currentTarget.value);
-              }}
-            />
-          </SettingItem>
-
           <SettingItem
             title={Locale.Settings.Usage.Title}
             subTitle={
