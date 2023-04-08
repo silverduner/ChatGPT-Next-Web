@@ -546,6 +546,9 @@ export function Chat(props: {
             <IconButton
               icon={<BrainIcon />}
               bordered
+              className={
+                session.context.length ? styles["chat-context-set"] : ""
+              }
               title={Locale.Chat.Actions.CompressedHistory}
               onClick={() => {
                 setShowPromptModal(true);
@@ -568,7 +571,7 @@ export function Chat(props: {
         </div>
 
         <PromptToast
-          showToast={!hitBottom}
+          showToast={false}
           showModal={showPromptModal}
           setShowModal={setShowPromptModal}
         />
@@ -595,62 +598,64 @@ export function Chat(props: {
               }
             >
               <div className={styles["chat-message-container"]}>
-                <div className={styles["chat-message-avatar"]}>
-                  <Avatar role={message.role} />
+                <div className={styles["chat-message-row"]}>
+                  <div className={styles["chat-message-avatar"]}>
+                    <Avatar role={message.role} />
+                  </div>
+                  <div className={styles["chat-message-item"]}>
+                    {!isUser &&
+                      !(message.preview || message.content.length === 0) && (
+                        <div className={styles["chat-message-top-actions"]}>
+                          {message.streaming ? (
+                            <div
+                              className={styles["chat-message-top-action"]}
+                              onClick={() => onUserStop(message.id ?? i)}
+                            >
+                              {Locale.Chat.Actions.Stop}
+                            </div>
+                          ) : (
+                            <div
+                              className={styles["chat-message-top-action"]}
+                              onClick={() => onResend(i)}
+                            >
+                              {Locale.Chat.Actions.Retry}
+                            </div>
+                          )}
+
+                          <div
+                            className={styles["chat-message-top-action"]}
+                            onClick={() => copyToClipboard(message.content)}
+                          >
+                            {Locale.Chat.Actions.Copy}
+                          </div>
+                        </div>
+                      )}
+                    {(message.preview || message.content.length === 0) &&
+                    !isUser ? (
+                      <LoadingIcon />
+                    ) : (
+                      <div
+                        className="markdown-body"
+                        style={{
+                          fontSize: `${fontSize}px`,
+                          opacity: message.preview ? 0.5 : 1.0,
+                        }}
+                        onContextMenu={(e) => onRightClick(e, message)}
+                        onDoubleClickCapture={() => {
+                          if (!isMobileScreen()) return;
+                          setUserInput(message.content);
+                        }}
+                      >
+                        <Markdown content={message.content} />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {(message.preview || message.streaming) && (
                   <div className={styles["chat-message-status"]}>
                     {Locale.Chat.Typing}
                   </div>
                 )}
-                <div className={styles["chat-message-item"]}>
-                  {!isUser &&
-                    !(message.preview || message.content.length === 0) && (
-                      <div className={styles["chat-message-top-actions"]}>
-                        {message.streaming ? (
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onUserStop(message.id ?? i)}
-                          >
-                            {Locale.Chat.Actions.Stop}
-                          </div>
-                        ) : (
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onResend(i)}
-                          >
-                            {Locale.Chat.Actions.Retry}
-                          </div>
-                        )}
-
-                        <div
-                          className={styles["chat-message-top-action"]}
-                          onClick={() => copyToClipboard(message.content)}
-                        >
-                          {Locale.Chat.Actions.Copy}
-                        </div>
-                      </div>
-                    )}
-                  {(message.preview || message.content.length === 0) &&
-                  !isUser ? (
-                    <LoadingIcon />
-                  ) : (
-                    <div
-                      className="markdown-body"
-                      style={{
-                        fontSize: `${fontSize}px`,
-                        opacity: message.preview ? 0.5 : 1.0,
-                      }}
-                      onContextMenu={(e) => onRightClick(e, message)}
-                      onDoubleClickCapture={() => {
-                        if (!isMobileScreen()) return;
-                        setUserInput(message.content);
-                      }}
-                    >
-                      <Markdown content={message.content} />
-                    </div>
-                  )}
-                </div>
                 {!isUser && !message.preview && (
                   <div className={styles["chat-message-actions"]}>
                     <div className={styles["chat-message-action-date"]}>
