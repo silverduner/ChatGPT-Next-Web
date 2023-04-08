@@ -1,6 +1,7 @@
 import type { ChatRequest, ChatReponse } from "./api/openai/typing";
 import { Message, ModelConfig, useAccessStore, useChatStore } from "./store";
 import { showToast } from "./components/ui-lib";
+import md5 from "spark-md5";
 
 const TIME_OUT_MS = 30000;
 
@@ -34,7 +35,7 @@ function getHeaders() {
   let headers: Record<string, string> = {};
 
   if (accessStore.enabledAccessControl()) {
-    headers["access-code"] = accessStore.accessCode;
+    headers["access-code"] = md5.hash(accessStore.accessCode);
   }
 
   if (accessStore.token && accessStore.token.length > 0) {
