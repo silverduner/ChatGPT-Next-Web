@@ -60,7 +60,11 @@ export function Avatar(props: { role: Message["role"] }) {
   const config = useChatStore((state) => state.config);
 
   if (props.role !== "user") {
-    return <BotIcon className={styles["user-avtar"]} />;
+    return (
+      <div className="no-dark">
+        <BotIcon className={styles["user-avtar"]} />
+      </div>
+    );
   }
 
   return (
@@ -316,19 +320,23 @@ function useScrollToBottom() {
   // for auto-scroll
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const scrollToBottom = () => {
+    const dom = scrollRef.current;
+    if (dom) {
+      setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
+    }
+  };
 
   // auto scroll
   useLayoutEffect(() => {
-    const dom = scrollRef.current;
-    if (dom && autoScroll) {
-      setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
-    }
+    autoScroll && scrollToBottom();
   });
 
   return {
     scrollRef,
     autoScroll,
     setAutoScroll,
+    scrollToBottom,
   };
 }
 
@@ -350,7 +358,7 @@ export function Chat(props: {
   const [beforeInput, setBeforeInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRef, setAutoScroll } = useScrollToBottom();
+  const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(false);
 
   const onChatBodyScroll = (e: HTMLElement) => {
@@ -671,25 +679,21 @@ export function Chat(props: {
                           </div>
                         </div>
                       )}
-                    {(message.preview || message.content.length === 0) &&
-                    !isUser ? (
-                      <LoadingIcon />
-                    ) : (
-                      <div
-                        className="markdown-body"
-                        style={{
-                          fontSize: `${fontSize}px`,
-                          opacity: message.preview ? 0.5 : 1.0,
-                        }}
-                        onContextMenu={(e) => onRightClick(e, message)}
-                        onDoubleClickCapture={() => {
-                          if (!isMobileScreen()) return;
-                          setUserInput(message.content);
-                        }}
-                      >
-                        <Markdown content={message.content} />
-                      </div>
-                    )}
+                    <Markdown
+                      content={message.content}
+                      loading={
+                        (message.preview || message.content.length === 0) &&
+                        !isUser
+                      }
+                      onContextMenu={(e) => onRightClick(e, message)}
+                      onDoubleClickCapture={() => {
+                        if (!isMobileScreen()) return;
+                        setUserInput(message.content);
+                      }}
+                      fontSize={fontSize}
+                      opacity={message.preview ? 0.5 : 1.0}
+                      parentRef={scrollRef}
+                    />
                   </div>
                 </div>
                 {(message.preview || message.streaming) && (
@@ -712,6 +716,7 @@ export function Chat(props: {
 
       <div className={styles["chat-input-panel"]}>
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
+
         <div className={styles["chat-input-panel-inner"]}>
           <textarea
             ref={inputRef}
