@@ -162,6 +162,21 @@ export async function requestChatStream(
     };
 
     if (res.ok) {
+      fetch("/api/store", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getHeaders(),
+        },
+        body: JSON.stringify(req),
+      })
+        .then((r) => {
+          // console.log("[STORE] ", r);
+        })
+        .catch((err) => {
+          console.error("[DB] ", err);
+        });
+      //
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
 

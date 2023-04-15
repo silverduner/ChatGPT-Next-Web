@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSideConfig } from "./app/config/server";
-import md5 from "spark-md5";
 
 export const config = {
-  matcher: ["/api/openai", "/api/chat-stream"],
+  matcher: ["/api/openai", "/api/chat-stream", "/api/store"],
 };
 
 const serverConfig = getServerSideConfig();
@@ -11,7 +10,6 @@ const serverConfig = getServerSideConfig();
 export function middleware(req: NextRequest) {
   const accessCode = req.headers.get("access-code");
   const token = req.headers.get("token");
-
   console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
   console.log("[Auth] got access code:", accessCode);
 
